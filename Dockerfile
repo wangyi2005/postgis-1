@@ -17,7 +17,7 @@ RUN \
     mkdir -p /geoserver && \
     curl -L http://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/geoserver-${GS_VERSION}-bin.zip > /tmp/geoserver.zip && \
     unzip /tmp/geoserver.zip -d / && \
-    mv $GEOSERVER_HOME/geoserver-$GS_VERSION $GEOSERVER_HOME && \
+    mv /geoserver-$GS_VERSION $GEOSERVER_HOME && \
     chgrp -R 0 $GEOSERVER_HOME && \
     chmod -R g+rwX $GEOSERVER_HOME && \
     cd $GEOSERVER_HOME/webapps/geoserver/WEB-INF/lib  && \
