@@ -222,7 +222,7 @@ COPY docker-entrypoint.sh /usr/local/bin/
 COPY initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
 RUN ln -s usr/local/bin/docker-entrypoint.sh / 
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 #RUN chmod +x /entrypoint.sh
 EXPOSE 5432
 EXPOSE 8080
