@@ -220,12 +220,11 @@ ENV JAVA_OPTS "-server -Xms256m -Xmx768m"
 COPY entrypoint.sh /entrypoint.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
-#RUN ln -s usr/local/bin/docker-entrypoint.sh / 
 
+RUN chmod +x /docker-entrypoint.sh && chmod +x /docker-entrypoint-initdb.d/postgis.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
-#RUN chmod +x /entrypoint.sh
+
 EXPOSE 5432
 EXPOSE 8080
 
-#CMD /entrypoint.sh
 CMD ["postgres"]
