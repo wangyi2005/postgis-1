@@ -29,4 +29,6 @@ RUN chmod +x /entrypoint.sh
 
 EXPOSE 8080
 
+FROM mdillon/postgis:9.6-alpine
+
 CMD /entrypoint.sh
