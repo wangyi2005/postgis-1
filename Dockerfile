@@ -26,5 +26,5 @@ RUN \
 ENV JAVA_OPTS "-server -Xms256m -Xmx768m"
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh 
-
+EXPOSE 8080
 CMD /entrypoint.sh
