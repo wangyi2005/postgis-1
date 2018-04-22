@@ -218,7 +218,7 @@ VOLUME /var/lib/postgresql/data
 ENV JAVA_OPTS "-server -Xms256m -Xmx768m"
 
 COPY entrypoint.sh /entrypoint.sh
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
 RUN ln -s usr/local/bin/docker-entrypoint.sh / 
 
