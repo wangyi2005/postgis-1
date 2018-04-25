@@ -134,7 +134,7 @@ RUN sed -ri "s!^#?(listen_addresses)\s*=\s*\S+.*!\1 = '*'!" /usr/local/share/pos
 
 RUN mkdir -p /var/run/postgresql && \
     chown -R postgres:postgres /var/run/postgresql && \
-    chgrp -R 0 && \
+    chgrp -R 0 /var/run/postgresql && \
     chmod 2777 /var/run/postgresql
 
 ENV PGDATA /var/lib/postgresql/data
