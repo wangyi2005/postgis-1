@@ -6,7 +6,7 @@ RUN set -ex; \
 	postgresHome="$(echo "$postgresHome" | cut -d: -f6)"; \
 	[ "$postgresHome" = '/var/lib/postgresql' ]; \
 	mkdir -p "$postgresHome"; \
-	chown -R postgres:postgres "$postgresHome"; \
+	chown -R postgres "$postgresHome"; \
 	chgrp -R 0  "$postgresHome";
 
 # su-exec (gosu-compatible) is installed further down
@@ -133,13 +133,13 @@ RUN set -ex \
 RUN sed -ri "s!^#?(listen_addresses)\s*=\s*\S+.*!\1 = '*'!" /usr/local/share/postgresql/postgresql.conf.sample
 
 RUN mkdir -p /var/run/postgresql && \
-    chown -R postgres:postgres /var/run/postgresql && \
+    chown -R postgres /var/run/postgresql && \
     chgrp -R 0 /var/run/postgresql && \
     chmod 2777 /var/run/postgresql
 
 ENV PGDATA /var/lib/postgresql/data
 RUN mkdir -p "$PGDATA" && \
-    chown -R postgres:postgres "$PGDATA" && \
+    chown -R postgres "$PGDATA" && \
     chgrp -R 0 "$PGDATA" && \
     chmod 777 "$PGDATA" 
     
@@ -203,15 +203,13 @@ RUN set -ex \
     && rm -rf /usr/src/postgis \
     && apk del .fetch-deps .build-deps .build-deps-testing
 
-
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
 
 RUN chmod +x /docker-entrypoint.sh && chmod +x /docker-entrypoint-initdb.d/postgis.sh
 
-USER 26
-
 EXPOSE 5432
+USER 26
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["postgres"]
