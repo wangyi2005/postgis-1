@@ -1,30 +1,6 @@
-FROM openjdk:8-jre-alpine
-
-# Install Java JAI libraries
-RUN \
-    apk add --no-cache ca-certificates curl && \
-    cd /tmp && \
-    curl -L http://download.java.net/media/jai/builds/release/1_1_3/jai-1_1_3-lib-linux-amd64.tar.gz | tar xfz - && \
-    curl -L http://download.java.net/media/jai-imageio/builds/release/1.1/jai_imageio-1_1-lib-linux-amd64.tar.gz  | tar xfz - && \
-    mv /tmp/jai*/lib/*.jar $JAVA_HOME/lib/ext/  && \
-    mv /tmp/jai*/lib/*.so $JAVA_HOME/lib/amd64/  && \
-    rm -r /tmp/*
-    
-# Install geoserver
-ARG GS_VERSION=2.13.0
-ENV GEOSERVER_HOME /geoserver-$GS_VERSION
-RUN \
-    curl -L http://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/geoserver-${GS_VERSION}-bin.zip > /tmp/geoserver.zip && \
-    unzip -q /tmp/geoserver.zip -d / && \
-    chgrp -R 0 $GEOSERVER_HOME && \
-    chmod -R g+rwX $GEOSERVER_HOME && \
-    cd $GEOSERVER_HOME/webapps/geoserver/WEB-INF/lib  && \
-    rm jai_core-*jar jai_imageio-*.jar jai_codec-*.jar  && \
-    apk del curl  && \
-    rm -r /tmp/* 
+FROM alpine:3.7
     
 #install Postgresql
-
 RUN set -ex; \
 	postgresHome="$(getent passwd postgres)"; \
 	postgresHome="$(echo "$postgresHome" | cut -d: -f6)"; \
@@ -32,13 +8,17 @@ RUN set -ex; \
 	mkdir -p "$postgresHome"; \
 	chown -R postgres:postgres "$postgresHome"
 
+# su-exec (gosu-compatible) is installed further down
+
+# make the "en_US.UTF-8" locale so postgres will be utf-8 enabled by default
+# alpine doesn't require explicit locale-file generation
 ENV LANG en_US.utf8
 
 RUN mkdir /docker-entrypoint-initdb.d
 
-ENV PG_MAJOR 10
-ENV PG_VERSION 10.3
-ENV PG_SHA256 6ea268780ee35e88c65cdb0af7955ad90b7d0ef34573867f223f14e43467931a
+ENV PG_MAJOR 9.6
+ENV PG_VERSION 9.6.8
+ENV PG_SHA256 eafdb3b912e9ec34bdd28b651d00226a6253ba65036cb9a41cad2d9e82e3eb70
 
 RUN set -ex \
 	\
@@ -155,6 +135,7 @@ RUN mkdir -p /var/run/postgresql && chown -R postgres:postgres /var/run/postgres
 
 ENV PGDATA /var/lib/postgresql/data
 RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA" # this 777 will be replaced by 700 at runtime (allows semi-arbitrary "--user" values)
+VOLUME /var/lib/postgresql/data
 
 # install Postgis
 
@@ -213,18 +194,16 @@ RUN set -ex \
     && cd / \
     && rm -rf /usr/src/postgis \
     && apk del .fetch-deps .build-deps .build-deps-testing
-    
-VOLUME /var/lib/postgresql/data
-ENV JAVA_OPTS "-server -Xms256m -Xmx768m"
 
-COPY entrypoint.sh /entrypoint.sh
+
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
 
 RUN chmod +x /docker-entrypoint.sh && chmod +x /docker-entrypoint-initdb.d/postgis.sh
-ENTRYPOINT ["/docker-entrypoint.sh"]
+
+USER 26
 
 EXPOSE 5432
-EXPOSE 8080
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["postgres"]
